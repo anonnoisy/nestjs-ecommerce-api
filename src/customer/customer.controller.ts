@@ -87,14 +87,18 @@ export class CustomerController {
     @Res() response: Response,
   ): Promise<Response> {
     if (updateCustomerDto.username !== null) {
-      const isUsernameExists = await this.customerService.findOne({
-        username: updateCustomerDto.username.toString(),
+      const isUsernameExists = await this.customerService.findFirst({
+        OR: [
+          { username: updateCustomerDto.username.toString() },
+          { email: updateCustomerDto.email.toString() },
+          { phone: updateCustomerDto.phone.toString() },
+        ],
       });
 
-      if (isUsernameExists && isUsernameExists.id !== id) {
+      if (isUsernameExists) {
         return response
           .status(HttpStatus.BAD_REQUEST)
-          .json({ message: 'Username already exists' });
+          .json({ message: 'Username or email address or phone already exists' });
       }
     }
 
