@@ -26,24 +26,32 @@ export class CustomerService {
   }
 
   async findOne(
-    customerWhereUniqeInput: Prisma.CustomerWhereUniqueInput,
+    where: Prisma.CustomerWhereUniqueInput,
   ): Promise<Customer | null> {
     return await this.prismaService.customer.findUnique({
-      where: customerWhereUniqeInput,
+      where: where,
     });
   }
 
-  async update(
-    customerWhereUniqeInput: Prisma.CustomerWhereUniqueInput,
+  async findFirst(
+    where: Prisma.CustomerWhereInput,
+  ): Promise<Customer | null> {
+    return await this.prismaService.customer.findFirst({
+      where: where,
+    });
+  }
+
+  async update(params: {
+    where: Prisma.CustomerWhereUniqueInput,
     data: Prisma.CustomerUpdateInput,
-  ): Promise<Customer> {
+  }): Promise<Customer> {
     return await this.prismaService.customer.update({
-      where: customerWhereUniqeInput,
-      data: data,
+      where: params.where,
+      data: params.data,
     });
   }
 
-  async remove(id: string): Promise<Customer> {
-    return this.prismaService.customer.delete({ where: { id } });
+  async remove(where: Prisma.CustomerWhereUniqueInput): Promise<Customer> {
+    return this.prismaService.customer.delete({ where: where });
   }
 }
