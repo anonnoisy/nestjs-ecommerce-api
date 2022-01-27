@@ -1,26 +1,49 @@
 import { Injectable } from '@nestjs/common';
-import { CreateCustomerDto } from './dto/create-customer.dto';
-import { UpdateCustomerDto } from './dto/update-customer.dto';
+import { Customer, Prisma } from '@prisma/client';
+import { PrismaService } from 'src/prisma/prisma.service';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class CustomerService {
-  create(createCustomerDto: CreateCustomerDto) {
-    return 'This action adds a new customer';
+  constructor(private readonly prismaService: PrismaService) {}
+
+  async create(data: Prisma.CustomerCreateInput): Promise<Customer> {
+    const salt = await bcrypt.genSalt();
+    const hash = await bcrypt.hash(data.password, salt);
+    data.password = hash;
+
+    return await this.prismaService.customer.create({ data });
   }
 
-  findAll() {
-    return `This action returns all customer`;
+  async findAll(params: {
+    skip?: number;
+    take?: number;
+    cursor?: Prisma.UserWhereUniqueInput;
+    where?: Prisma.CustomerWhereInput;
+    orderBy?: Prisma.CustomerOrderByWithRelationInput;
+  }): Promise<Customer[]> {
+    return await this.prismaService.customer.findMany({ ...params });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} customer`;
+  async findOne(
+    customerWhereUniqeInput: Prisma.CustomerWhereUniqueInput,
+  ): Promise<Customer | null> {
+    return await this.prismaService.customer.findUnique({
+      where: customerWhereUniqeInput,
+    });
   }
 
-  update(id: number, updateCustomerDto: UpdateCustomerDto) {
-    return `This action updates a #${id} customer`;
+  async update(
+    customerWhereUniqeInput: Prisma.CustomerWhereUniqueInput,
+    data: Prisma.CustomerUpdateInput,
+  ): Promise<Customer> {
+    return await this.prismaService.customer.update({
+      where: customerWhereUniqeInput,
+      data: data,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} customer`;
+  async remove(id: string): Promise<Customer> {
+    return this.prismaService.customer.delete({ where: { id } });
   }
 }
