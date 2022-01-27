@@ -117,7 +117,9 @@ export class UserController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userService.remove({ id });
+  remove(@Param('id') id: string, @Res() res: Response) {
+    const deleted = this.userService.remove({ id });
+
+    return res.status(HttpStatus.OK).json(deleted);
   }
 }
